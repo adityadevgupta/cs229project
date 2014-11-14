@@ -8,8 +8,8 @@ def midi_to_stream(filename_path):
 		converts a full filename to a Music21 usable Stream object, 
 	"""
 
-	midi_file = midi.midiFile()
-	midi_file.open()
+	midi_file = midi.MidiFile()
+	midi_file.open(filename_path)
 	midi_file.read()
-	midi_fileg.close()
-	return midi.translate.midiFileToStream(mf)
+	midi_file.close()
+	return midi.translate.midiFileToStream(midi_file)
