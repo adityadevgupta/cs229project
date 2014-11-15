@@ -3,20 +3,18 @@ from music21 import *
 import numpy as np
 
 def get_training_point(measure):
-
+	return None
 
 def get_chords_from_measure(measure):
   chords = []
   for elem in measure:
     if type(elem) is chord.Chord:
-      chords += elem
+      chords += [elem]
     if type(elem) is stream.Voice:
       for thing in elem:
-        if type(elem) is chord.Chord:
-          chords += thing
+        if type(thing) is chord.Chord:
+          chords += [thing]
   return chords
-
-def collapse_measure(measure):
    
 
 def add_measures_to_parts(score):
