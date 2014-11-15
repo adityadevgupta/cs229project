@@ -1,6 +1,6 @@
 from util import *
 
-s = midi_to_stream("../midi/autumn_leaves_jpa.mid")
+s = midi_to_stream("../midi/take_5_jh.mid")
 
 def find_measure(stream):
 	if not hasattr(stream, '__iter__'):#not iterable

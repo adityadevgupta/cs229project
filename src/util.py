@@ -12,4 +12,7 @@ def midi_to_stream(filename_path):
 	midi_file.open(filename_path)
 	midi_file.read()
 	midi_file.close()
-	return midi.translate.midiFileToStream(midi_file)
+	s = midi.translate.midiFileToStream(midi_file)
+	if not s.hasMeasures():
+		s.makeMeasures(inPlace=True)
+	return s
