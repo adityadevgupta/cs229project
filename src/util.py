@@ -2,47 +2,6 @@ import os
 from music21 import *
 import numpy as np
 
-"""
-object
-
-Score (music21 score type)
-bass
-treble
-nParts
-nMeasures
-time signature
-
-"""
-
-def get_score_object(score):
-  return None
-
-def get_training_data(score):
-
-  # basic variables
-  nParts = len(score)
-  treble = []
-  bass = []
-  nMeasures = min([len(s[i]) for i in range(nParts)])
-
-  # determine clefs of parts
-  for i in range(nParts):
-    if type(s[i][0][0]) is clef.TrebleClef:
-      treble += i
-    if type(s[0][0][0]) is clef.BassClef:
-      bass += i
-
-  X_train = []
-
-  # get training point for every measure
-  for i in range(nMeasures):
-    x = [None]*3
-    # not the first measure
-    if i != 0:
-      # for each bass clef part
-      for b in bass:
-        chords = get_chords_from_measure(score[b][0])
-
 def get_solo_part(score, treble):
   return None
 
