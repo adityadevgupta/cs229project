@@ -11,14 +11,14 @@ def get_training_point(measure):
 def get_time_signature(measure):
   return s[0][0][1]
 
-def get_chords_from_measure(measure):
+def get_chords_from_measure(measure, min_len):
   chords = []
   for elem in measure:
-    if type(elem) is chord.Chord:
+    if type(elem) is chord.Chord and len(elem) >= min_len:
       chords += [elem]
     if type(elem) is stream.Voice:
       for thing in elem:
-        if type(thing) is chord.Chord:
+        if type(thing) is chord.Chord and len(thing) >= min_len:
           chords += [thing]
   return chords
    
@@ -37,5 +37,5 @@ def midi_to_stream(filename_path):
 	# midi_file.read()
 	# midi_file.close()
 	s = midi.translate.midiFilePathToStream(filename_path)
-	
+
 	return s

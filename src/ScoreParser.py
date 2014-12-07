@@ -7,6 +7,7 @@ class ScoreParser:
 			Initialization that just takes in a music21 score object
 		"""
 		self.score = midi_to_stream(file)
+		self.min_notes_for_chord = 4
 		add_measures_to_parts(self.score)
 		# do the preprocessing
 		# measures,
@@ -22,7 +23,14 @@ class ScoreParser:
 			Gets all training points for the score, 
 			Goes through all measures to get it
 		"""
-		return x, y		
+		train_X = []
+		train_y = []
+		for i in range(self.n_measures):
+			X, y= self.extract_training_points_from_measure(i)
+			train_X += X
+			train_y += y
+		# print len(train_X)
+		return train_X, train_y
 
 	def extract_training_points_from_measure(self, measure_index):
 		"""
@@ -37,19 +45,19 @@ class ScoreParser:
 
 		for part in range(self.n_parts):
 			# skip solo part
-			if (not part == self.solo_parts[part]) or (self.n_parts == 1) :
+			if (not part == self.solo_parts[measure_index]) or (self.n_parts == 1) :
 				# populate the chords array
-				chords += get_chords_from_measure(self.score[part][measure_index])
-				last_measure_chords =  get_chords_from_measure(self.score[part][measure_index - 1]) if measure_index - 1 != 0 else None 
+				chords += get_chords_from_measure(self.score[part][measure_index], self.min_notes_for_chord)
+				last_measure_chords =  get_chords_from_measure(self.score[part][measure_index - 1], self.min_notes_for_chord) if measure_index - 1 != 0 else None 
 				if last_measure_chords != None:
 					if len(last_measure_chords) != 0:
-						last_chords_of_prev_measure += last_measure_chords[-1] 	
-				first_measure_chords = get_chords_from_measure(self.score[part][measure_index + 1])
+						last_chords_of_prev_measure += [last_measure_chords[-1]] 	
+				first_measure_chords = get_chords_from_measure(self.score[part][measure_index + 1], self.min_notes_for_chord) if measure_index + 1 != self.n_measures else None
 				if first_measure_chords != None:
 					if len(first_measure_chords) != 0:
-						first_chords_of_next_measure += first_measure_chords[0]
+						first_chords_of_next_measure += [first_measure_chords[0]]
 
-			if (part == self.solo_parts[part]) :
+			if (part == self.solo_parts[measure_index]) :
 				# populate the solo_ideas array
 				solo_ideas = self.get_solo_ideas_from_measure(self.score[part][measure_index])
 
@@ -62,11 +70,45 @@ class ScoreParser:
 		if len(first_chords_of_next_measure) == 0:
 			first_chords_of_next_measure = [None]
 
+		# each training point is represented as the following:
+		# [C_{-1}, C_0, C_1], where each of the chords is one of
+		# the chords in the corresponding measure
+		train_X = []
+		train_y = []
+		for last_chord in last_chords_of_prev_measure:
+			for this_chord in chords:
+				for next_chord in first_chords_of_next_measure:
+					for idea in solo_ideas:
+						train_X += [[	self.get_chord_cluster(last_chord), 
+										self.get_chord_cluster(this_chord),
+										self.get_chord_cluster(next_chord)
+									]]
+						train_y += [self.get_idea_cluster(idea)]
+
+		# print "prev chords: ", last_chords_of_prev_measure
+		# print "chords: ", chords
+		# print "next chords: ", first_chords_of_next_measure
+		# print "solo ideas: ", solo_ideas
+
+		# self.pretty_print_training_data(train_X, train_y)
+
+		return train_X, train_y
+
+
 		# get all combinations of chords and solo_ideas
-		print "prev chords: ", last_chords_of_prev_measure
-		print "chords: ", chords
-		print "next chords: ", first_chords_of_next_measure
-		print "solo ideas: ", solo_ideas
+
+	def pretty_print_training_data(self, X, y, n):
+		for i in range(len(y)):
+			if i > n:
+				break
+			print 'Example ', i, ': ', X[i], " ----> ", y[i], '\n'
+
+	def get_chord_cluster(self, chord):
+		return chord
+
+	def get_idea_cluster(self, idea):
+		return idea
+
 
 	def get_solo_ideas_from_measure(self, measure):
 		"""
