@@ -1,14 +1,16 @@
 from music21 import *
 from util import *
+from MusicalIdea import *
+from ChordRep import *
+
 class ScoreParser:
 
-	def __init__(self, file):
+	def __init__(self, stream):
 		"""
 			Initialization that just takes in a music21 score object
 		"""
-		self.score = midi_to_stream(file)
+		self.score = stream
 		self.min_notes_for_chord = 4
-		add_measures_to_parts(self.score)
 		# do the preprocessing
 		# measures,
 		#self.timeSignature = #get time
@@ -79,11 +81,11 @@ class ScoreParser:
 			for this_chord in chords:
 				for next_chord in first_chords_of_next_measure:
 					for idea in solo_ideas:
-						train_X += [[	self.get_chord_cluster(last_chord), 
-										self.get_chord_cluster(this_chord),
-										self.get_chord_cluster(next_chord)
+						train_X += [[	ChordRep(last_chord), 
+										ChordRep(this_chord),
+										ChordRep(next_chord)
 									]]
-						train_y += [self.get_idea_cluster(idea)]
+						train_y += [MusicalIdea(idea)]
 
 		# print "prev chords: ", last_chords_of_prev_measure
 		# print "chords: ", chords
@@ -102,13 +104,6 @@ class ScoreParser:
 			if i > n:
 				break
 			print 'Example ', i, ': ', X[i], " ----> ", y[i], '\n'
-
-	def get_chord_cluster(self, chord):
-		return chord
-
-	def get_idea_cluster(self, idea):
-		return idea
-
 
 	def get_solo_ideas_from_measure(self, measure):
 		"""
