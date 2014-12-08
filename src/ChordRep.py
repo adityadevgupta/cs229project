@@ -17,7 +17,7 @@ class ChordRep:
 			elif type(self.c[i]) == note.Note:
 				arr += [get_fifths_distance(self.c[ind_of_last_note], self.c[i])]
 				ind_of_last_note = i
-		self.fifths_intervals = arr
+		self.fifths_intervals = arr	
 
 	# def output(self):
 	# 	return [self.fifths_intervals.tolist(), self.c.tolist()]

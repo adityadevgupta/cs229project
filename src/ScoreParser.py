@@ -14,7 +14,7 @@ class ScoreParser:
 		# do the preprocessing
 		# measures,
 		#self.timeSignature = #get time
-		self.min_idea_size = 3
+		self.idea_size = 4
 		self.n_parts = len(self.score)
 		self.n_measures = min([len(self.score[i]) for i in range(self.n_parts)])
 		self.solo_parts = self.get_solo_parts() # array for each measure, gives the soloing part
@@ -105,6 +105,7 @@ class ScoreParser:
 				break
 			print 'Example ', i, ': ', X[i], " ----> ", y[i], '\n'
 
+
 	def get_solo_ideas_from_measure(self, measure):
 		"""
 			Make these optimized for getting solo ideas that are non-trivial
@@ -112,21 +113,37 @@ class ScoreParser:
 			listen to.
 		"""
 		solo_ideas = []
-
-  		idea = []
-	  	for elem in measure:
-			if (type(elem) is note.Note) or (type(elem) is note.Rest):
-				idea += [elem]
+		full_idea = []
+		note_indices = []
+		for elem in measure:
+			if type(elem) is note.Note:
+				full_idea += [elem]
+				note_indices += [len(full_idea) - 1]
+			if type(elem) is note.Rest:
+				full_idea += [elem]
 			if type(elem) is stream.Voice:
-				voice_idea = []
-				for thing in elem:
-					if (type(thing) is note.Note) or (type(thing) is note.Rest):
-						voice_idea += [thing]
-				if len(voice_idea) >= self.min_idea_size:
-					solo_ideas += [voice_idea]
-		if len(idea) >= self.min_idea_size:
-			solo_ideas += [idea]
+				solo_ideas += self.get_ideas_from_voice(elem)
+
+		solo_ideas += self.extract_n_note_ideas(full_idea, note_indices, self.idea_size)
 		return solo_ideas
+
+	def extract_n_note_ideas(self, full_idea, note_indices, n):
+		solo_ideas = []
+		for i in range(len(note_indices) - (n-1)):
+			solo_ideas += [full_idea[note_indices[i]:(note_indices[i + (n-1)] + 1)]]
+		return solo_ideas
+
+	def get_ideas_from_voice(self, voice):
+		full_idea = []
+		note_indices = []
+		for elem in voice:
+			if type(elem) is note.Note:
+				full_idea += [elem]
+				note_indices += [len(full_idea) - 1]
+			if type(elem) is note.Rest:
+				full_idea += [elem]
+		return self.extract_n_note_ideas(full_idea, note_indices, self.idea_size)
+
 
 
 	def get_solo_parts(self):

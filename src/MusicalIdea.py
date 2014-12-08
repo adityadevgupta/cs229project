@@ -17,7 +17,7 @@ class MusicalIdea:
 			elif type(self.notes_and_rests[i]) == note.Note:
 				arr += [get_fifths_distance(self.notes_and_rests[ind_of_last_note], self.notes_and_rests[i])]
 				ind_of_last_note = i
-		arr
+		self.fifths_intervals = arr
 
 	# def output_for_storage(self):
 	# 	return [self.fifths_intervals(), self.notes_and_rests()]
