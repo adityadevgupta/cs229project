@@ -14,7 +14,7 @@ class Trainer:
 		i = 0
 		for file in os.listdir(self.dir):
 			i += 1
-			if i > 50:
+			if i > 20:
 				break
 			if not ('mid' in file or 'midi' in file):
 				continue
